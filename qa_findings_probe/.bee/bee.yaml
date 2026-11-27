@@ -1,0 +1,62 @@
+schema: bee/v1
+name: qa_findings_probe
+display_name: QA Findings Probe Bee
+version: 1.0.0
+description: QA test bee. Counts the pods in the default namespace and reports one finding that opens and clears on alternate sweeps, so the Bee page's findings, counts and history can be checked.
+author: { name: QA }
+
+install:
+  account_types: [k8s]
+  scope: [namespaces]
+
+output:
+  stage: { enum: [open, cleared] }
+  checked:
+    type: array
+    items:
+      type: object
+      properties:
+        target: { type: string }
+        check: { type: string, enum: [probe_pods] }
+      required: [target, check]
+  findings:
+    type: array
+    items:
+      type: object
+      properties:
+        target: { type: string }
+        check: { type: string, enum: [probe_pods] }
+        severity: { enum: [warning, critical] }
+        title: { type: string }
+        detail: { type: string }
+        value: { type: number }
+        unit: { enum: [pods] }
+        next: { enum: [ticket, review, fix_access] }
+      required: [target, check, severity, title, detail, value, unit]
+  metrics:
+    type: array
+    items:
+      type: object
+      properties:
+        target: { type: string }
+        metric: { type: string, enum: [probe_pods] }
+        value: { type: number }
+      required: [target, metric, value]
+  plan:
+    type: object
+
+findings:
+  checked_field: checked
+  findings_field: findings
+  units: [pods]
+  metrics_field: metrics
+  metrics:
+    probe_pods: { kind: gauge, unit: pods }
+
+memory:
+  plan_field: plan
+
+budget:
+  max_tokens_per_run: 60000
+  max_runs_per_day: 20
+  timeout: 5m

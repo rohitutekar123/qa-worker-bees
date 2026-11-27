@@ -1,0 +1,20 @@
+title: QA Probe
+description: QA test dashboard. Pods counted in the default namespace by the QA Findings Probe Bee, day by day. Installed with the bee.
+definition:
+  time_from: now-14d
+  panels:
+    - id: 1
+      title: Pods in default
+      description: Pods the probe counted at its latest sweep.
+      type: stat
+      datasource: nudgebee
+      grid_pos: { x: 0, y: 0, w: 4, h: 4 }
+      targets:
+        - ref_id: A
+          time_column: day
+          query:
+            table: bee_metric_levels_v2
+            columns: [{ name: day, expr: date_unit, args: [day] }, { name: last_value }]
+            where: { _and: [ { _binary: { metric: { _eq: probe_pods } } }, { _binary: { target: { _eq: default } } } ] }
+            order_by: [{ column: day, order: desc }]
+            limit: 500

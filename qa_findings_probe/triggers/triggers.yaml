@@ -1,0 +1,7 @@
+# QA test: a sweep every 10 minutes, so a finding opens on one sweep and clears on the next.
+triggers:
+  - name: probe-sweep
+    type: schedule
+    params:
+      cron: "*/10 * * * *"
+      evidence: "QA probe sweep."
